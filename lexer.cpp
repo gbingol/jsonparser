@@ -2,16 +2,15 @@
 #include <stdexcept>
 
 
-namespace script
+namespace JSONParser
 {
-	void CGenericLex::Tokenize(bool ShowWhiteSpace)
+	void CGenericLex::Tokenize()
 	{
 		std::string tokenStr;
 		size_t len = m_Tokenize.length();
 
-		//can't parse an empty string
-		if (m_Tokenize.empty())
-			return;
+		if (m_Tokenize.empty()) 
+			throw std::exception("Empty string cannot be tokenized.");
 
 		for (size_t index = 0; index < len; ++index)
 		{
@@ -23,31 +22,8 @@ namespace script
 			else if (c == 0 || c == '\0')
 				break;
 
-			else if ((c == ' ' || c == '\t') && ShowWhiteSpace)
-			{
-				size_t startpos = index;
-				char wspc = c;
-
-				while ((c = m_Tokenize[++index]) == wspc)
-					tokenStr += c;
-
-				index--;
-				m_TokenList.push_back(new CToken(CToken::TYPE::WHITESPACE, tokenStr, startpos, m_LineNumber));
-			}
-
-			/*can be \n\r or \n or \r\n */
-			else if (c == '\n' || c == '\r')
-			{
-				size_t Pos = index++;
-
-				if (c == '\r' || c == '\n') {}
-				else
-					index--;
-
-				m_TokenList.push_back(new CToken(CToken::TYPE::NEWLINE, c, Pos, m_LineNumber));
-
-				m_LineNumber++;
-			}
+			else if ((c == ' ' || c == '\t'))
+				continue;
 
 			else if (isdigit(c))
 			{
@@ -60,14 +36,12 @@ namespace script
 
 				index += Length - 1;
 
-				m_TokenList.push_back(new CToken(CToken::TYPE::NUMBER, m_Tokenize.substr(Pos, Length), Pos, m_LineNumber));
+				m_TokenList.push_back(new CToken(CToken::TYPE::NUMBER, m_Tokenize.substr(Pos, Length)));
 			}
 
 			//decimal equivalent in ASCII is 39
 			else if (c == '\"' || c == '\'')
 			{
-				size_t startPos = index;
-
 				char Character = c == '\"' ? '\"' : '\'';
 
 				tokenStr += c;
@@ -80,28 +54,26 @@ namespace script
 
 				tokenStr += c;
 
-				m_TokenList.push_back(new CToken(CToken::TYPE::STRING, tokenStr, startPos, m_LineNumber));
+				m_TokenList.push_back(new CToken(CToken::TYPE::STRING, tokenStr));
 			}
 
 			else if (c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}')
-				m_TokenList.push_back(new CToken(CToken::TYPE::BRACKETS, c, index, m_LineNumber));
+				m_TokenList.push_back(new CToken(CToken::TYPE::BRACKETS, c));
 
 
 			else if (c == '-' || c == '+' || c == '/' || c == '*' || c == '%' || c == '^' || c == '&' || c == '|' || c == '>' || c == '<')
-				m_TokenList.push_back(new CToken(CToken::TYPE::BINOP, c, index, m_LineNumber));
+				m_TokenList.push_back(new CToken(CToken::TYPE::BINOP, c));
 
 
 			else if (c == '.' || c == ';' || c == ',' || c == '#' || c == '!' || c == ':' || c == '~')
-				m_TokenList.push_back(new CToken(CToken::TYPE::DELIMITER, c, index, m_LineNumber));
+				m_TokenList.push_back(new CToken(CToken::TYPE::DELIMITER, c));
 
 			else if (c == '=')
-				m_TokenList.push_back(new CToken(CToken::TYPE::ASSIGNMENT, c, index, m_LineNumber));
+				m_TokenList.push_back(new CToken(CToken::TYPE::ASSIGNMENT, c));
 
 
 			else if (isalpha(c) || c == '_')
 			{
-				size_t startPos = index;
-
 				tokenStr += c;
 
 				c = m_Tokenize[++index];
@@ -113,8 +85,7 @@ namespace script
 				}
 
 				index--;
-
-				m_TokenList.push_back(new CToken(CToken::TYPE::IDENTIFIER, tokenStr, startPos, m_LineNumber));
+				m_TokenList.push_back(new CToken(CToken::TYPE::IDENTIFIER, tokenStr));
 			}
 
 			tokenStr.clear();

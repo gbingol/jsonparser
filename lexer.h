@@ -5,7 +5,7 @@
 #include <vector>
 
 
-namespace script
+namespace JSONParser
 {
 	/* ***********   CGenericLex  *********************/
 
@@ -14,101 +14,48 @@ namespace script
 	public:
 		enum class TYPE {
 			NUMBER = 0, IDENTIFIER, UNOP, BINOP, BRACKETS, DELIMITER,
-			WHITESPACE, NEWLINE, ASSIGNMENT, STRING
+			NEWLINE, ASSIGNMENT, STRING
 		};
 
 	public:
-		CToken(TYPE type,
-			std::string TokenValue,
-			size_t pos, size_t LineNumber) :
-			m_TokenType(type),
-			m_TokenValue(TokenValue),
-			m_StartPos{ pos },
-			m_LineNumber{ LineNumber } {}
-
-		CToken(TYPE type,
-			char c,
-			size_t pos,
-			size_t LineNumber) : CToken(type, std::string(1, c), pos, LineNumber) {}
-
+		CToken(TYPE type, std::string TokenValue) :	m_Type(type),m_Value(TokenValue){}
+		CToken(TYPE type,char c) : CToken(type, std::string(1, c)) {}
 		CToken(const CToken& other) = default;
 		~CToken() = default;
 
-		auto value() const { return m_TokenValue; }
-
-		size_t pos() const { return m_StartPos; }
-
-		size_t linenum() const { return m_LineNumber; }
-
-		std::string desc() const {
-			switch (m_TokenType)
-			{
-			case TYPE::NUMBER: return "num";
-			case TYPE::IDENTIFIER: return "name";
-			case TYPE::UNOP: return "unop";
-			case TYPE::BINOP: return "binop";
-			case TYPE::BRACKETS: return "brkt";
-			case TYPE::ASSIGNMENT: return "asgnt";
-			case TYPE::NEWLINE: return "nl";
-			case TYPE::STRING: return "str";
-			case TYPE::WHITESPACE: return "wspc";
-			default: return "";
-			}
-		}
-
-		TYPE type() const { return m_TokenType; }
-
-		void SetTokenType(TYPE tokentype) {
-			m_TokenType = tokentype;
-		}
+		auto value() const { return m_Value; }
+		TYPE type() const { return m_Type; }
 
 	private:
-		//start position
-		size_t m_StartPos;
-
-		//At which line the occurence is found
-		size_t m_LineNumber;
-
-		//Type of the Token
-		TYPE m_TokenType;
+		TYPE m_Type;
 
 		//value of Token for any kind of Token, can be +,-, primary etc...
-		std::string m_TokenValue;
+		std::string m_Value;
 	};
 
 
 	class CGenericLex
 	{
-		std::string m_Tokenize;
-
-		//How many lines does m_Tokenize have
-		size_t m_LineNumber = 0;
-
-		void Tokenize(bool ShowWhiteSpace = true);
-
-
 	public:
-		CGenericLex(const std::string& tokenize, bool ShowWhiteSpace = true)
+		CGenericLex(const std::string& tokenize)
 		{
 			m_Tokenize = tokenize;
 			m_TokenPos = 0;
 
-			m_LineNumber = 0;
-
-			Tokenize(ShowWhiteSpace);
+			Tokenize();
 		}
 
 		virtual ~CGenericLex() = default;
 
-		CToken* next() {
+		auto next() {
 			return (m_TokenPos < m_TokenList.size()) ? m_TokenList[m_TokenPos++] : nullptr;
 		}
 
-		CToken* prev() {
+		auto prev() {
 			return (m_TokenPos > 0) ? m_TokenList[m_TokenPos--] : nullptr;
 		}
 
-		CToken* at(size_t pos) const {
+		auto at(size_t pos) const {
 			return (pos < m_TokenList.size()) ? m_TokenList[pos] : nullptr;
 		}
 
@@ -120,15 +67,11 @@ namespace script
 			return m_TokenList.size();
 		}
 
-		size_t linecount() const {
-			return m_LineNumber + 1;
-		}
-
-		CToken* operator++(int) {
+		auto operator++(int) {
 			return m_TokenList[m_TokenPos++];
 		}
 
-		CToken* operator--(int) {
+		auto operator--(int) {
 			return m_TokenList[m_TokenPos--];
 		}
 
@@ -144,24 +87,18 @@ namespace script
 			return m_TokenPos < m_TokenList.size();
 		}
 
-		void reset(std::string str)
-		{
-			m_TokenList.clear();
-			m_TokenPos = 0;
-
-			m_Tokenize = str;
-
-			Tokenize();
-		}
-
-		std::vector<CToken*> GetTokenList() const {
+		const auto& data() const {
 			return m_TokenList;
 		}
 
+	private:
+		void Tokenize();
 
-	protected:
-		size_t m_TokenPos; //token's position in the vector
+	private:
+		size_t m_TokenPos; //tracking token's position in the vector
 
 		std::vector<CToken*> m_TokenList;
+
+		std::string m_Tokenize;
 	};
 }
