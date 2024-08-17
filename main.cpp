@@ -16,6 +16,6 @@ int main()
 	auto tokens = lex.data();
 	for(auto t: tokens)
 	{
-		std::cout << (int)t->type() << " " << t->value() << std::endl;
+		std::cout << (int)t.type() << " " << t.value() << std::endl;
 	}
 }

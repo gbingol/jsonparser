@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 
 
 namespace JSON
@@ -44,19 +45,25 @@ namespace JSON
 
 		virtual ~CJSONLex() = default;
 
-		auto next() {
-			return (m_TokenPos < m_Tokens.size()) ? m_Tokens[m_TokenPos++] : nullptr;
+		std::optional<CToken> next() {
+			if (m_TokenPos < m_Tokens.size()) 
+				return m_Tokens[m_TokenPos++];
+			return {};
 		}
 
-		auto prev() {
-			return (m_TokenPos > 0) ? m_Tokens[m_TokenPos--] : nullptr;
+		std::optional<CToken> prev() {
+			if (m_TokenPos > 0) 
+				return m_Tokens[m_TokenPos--];
+			return {};
 		}
 
-		auto at(size_t pos) const {
-			return (pos < m_Tokens.size()) ? m_Tokens[pos] : nullptr;
+		std::optional<CToken> at(size_t pos) const {
+			if (pos < m_Tokens.size())
+				return m_Tokens[pos];
+			return {};
 		}
 
-		void insert(size_t pos, CToken* token) {
+		void insert(size_t pos, CToken token) {
 			m_Tokens.insert(m_Tokens.begin() + pos, token);
 		}
 
@@ -94,7 +101,7 @@ namespace JSON
 	private:
 		size_t m_TokenPos; //tracking token's position in the vector
 
-		std::vector<CToken*> m_Tokens;
+		std::vector<CToken> m_Tokens;
 
 		std::string m_Content;
 	};

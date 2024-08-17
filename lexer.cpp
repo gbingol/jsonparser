@@ -33,7 +33,7 @@ namespace JSON
 
 				index += Length - 1;
 
-				m_Tokens.push_back(new CToken(CToken::NUM, m_Content.substr(Pos, Length)));
+				m_Tokens.emplace_back(CToken::NUM, m_Content.substr(Pos, Length));
 			}
 
 			//decimal equivalent in ASCII is 39
@@ -50,14 +50,14 @@ namespace JSON
 					throw std::exception("Parse error while searching for \" or \'");
 
 				tokenStr += c;
-				m_Tokens.push_back(new CToken(CToken::STR, tokenStr));
+				m_Tokens.emplace_back(CToken::STR, tokenStr);
 			}
 
 			else if (c == '[' || c == ']' || c == '{' || c == '}')
-				m_Tokens.push_back(new CToken(CToken::BRACKET, c));
+				m_Tokens.emplace_back(CToken::BRACKET, c);
 
 			else if (c == ',' || c == ':' )
-				m_Tokens.push_back(new CToken(CToken::DELIM, c));
+				m_Tokens.emplace_back(CToken::DELIM, c);
 
 			else if (isalpha(c) || c == '_') {
 				tokenStr += c;
@@ -68,7 +68,15 @@ namespace JSON
 					c = m_Content[++index];
 				}
 				index--;
-				m_Tokens.push_back(new CToken(CToken::ID, tokenStr));
+
+				if(tokenStr == "true" || tokenStr == "false")
+					m_Tokens.emplace_back(CToken::BOOL, tokenStr);
+
+				else if(tokenStr == "null")
+					m_Tokens.emplace_back(CToken::NONE, tokenStr);
+
+				else
+					m_Tokens.emplace_back(CToken::ID, tokenStr);
 			}
 
 			tokenStr.clear();
