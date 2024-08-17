@@ -12,7 +12,7 @@ int main()
 	\"short_desc\":\"Plot Charts\", \
 	}";
 
-	JSONParser::CGenericLex lex(s);
+	JSON::CJSONLex lex(s);
 	auto tokens = lex.data();
 	for(auto t: tokens)
 	{
