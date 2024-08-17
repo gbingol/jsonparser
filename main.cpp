@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "lexer.h"
+#include "objects.h"
 
 int main()
 {
