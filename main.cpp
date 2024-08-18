@@ -1,4 +1,5 @@
 #include <iostream>
+#include <assert.h>
 
 #include "lexer.h"
 #include "objects.hpp"
@@ -22,27 +23,73 @@ JSON::Value FromToken(const JSON::CToken& t)
 }
 
 
+JSON::Value ParseArray(JSON::Lexer& lex);
+
 JSON::Value ParseObject(JSON::Lexer& lex)
 {
 	std::unordered_map<std::string, std::any> map;
-	auto t = lex++;
-	while(t.type() != t.BRACKET && std::get<std::string>(t.value())!="}")
+
+	auto t = lex.cur();
+	assert(t.type() == t.BRACKET && std::get<std::string>(t.value())=="{");
+	lex++;
+	while(lex.hasmore())
 	{
-		auto keyToken = lex++;
-		if(keyToken.type()!=keyToken.STR)
+		auto Token = lex++;
+		if(Token.type() == Token.BRACKET && std::get<std::string>(Token.value())=="}")
+			break;
+
+		if(Token.type() == Token.DELIM && std::get<std::string>(Token.value())==",")
+			continue;
+
+		if(Token.type()!=Token.STR)
 			throw std::exception("Invalid key in object");
 	
-		auto key = std::get<std::string>(keyToken.value());
+		auto key = std::get<std::string>(Token.value());
 		
-		auto delimToken = lex++;
-		if(delimToken.type() != delimToken.DELIM || std::get<std::string>(delimToken.value())!=":")
+		auto ColTok = lex++;
+		if(ColTok.type() != ColTok.DELIM || std::get<std::string>(ColTok.value())!=":")
 			throw std::exception("Object assignments require : sign");
 
-		auto value = lex++;
-		map[key] = FromToken(value);
+		auto valTok = lex++;
+		if(valTok.type() == t.BRACKET && std::get<std::string>(valTok.value())!="[")
+		{
+			map[key] = ParseArray(lex);
+			lex++;
+		}
+		else
+			map[key] = FromToken(valTok);
 	}
 
 	return JSON::Object(map);
+}
+
+
+JSON::Value ParseArray(JSON::Lexer& lex)
+{
+	std::vector<std::any> Arr;
+	
+	auto t = lex.cur();
+	assert(t.type() == t.BRACKET && std::get<std::string>(t.value())=="[");
+
+	while(lex.hasmore())
+	{
+		auto Token = lex++;
+		if(Token.type() == Token.BRACKET && std::get<std::string>(Token.value())=="]")
+			break;
+
+		if(Token.type() == Token.DELIM && std::get<std::string>(Token.value())==",")
+			continue;
+		
+		if(Token.type() == t.BRACKET && std::get<std::string>(Token.value())!="{")
+		{
+			Arr.push_back(ParseObject(lex));
+			lex++
+		}
+		else
+			Arr.push_back(FromToken(Token));
+	}
+
+	return JSON::Array(Arr);
 }
 
 
@@ -58,9 +105,16 @@ int main()
 	}";
 
 	JSON::Lexer lex(s);
-	while(lex.hasmore())
+	auto t = lex.cur();
+
+	if(t.type() == t.BRACKET && std::get<std::string>(t.value())=="{")
 	{
-		auto t = lex++;
-		//std::cout << (int)t.type() << " " << t.value() << std::endl;
+		auto v = std::get<JSON::Object>(ParseObject(lex));
+		auto d = v.data();
+
+		for(const auto e:d)
+		{
+			std::cout<<e.first<<std::endl;
+		}
 	}
 }

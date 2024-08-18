@@ -145,6 +145,10 @@ namespace JSON
 
 		bool isObject() const override { return true; }
 
+        auto data() const{
+            return m_Data;
+        }
+
     protected:
         std::unordered_map<std::string, std::any> m_Data;
 	};

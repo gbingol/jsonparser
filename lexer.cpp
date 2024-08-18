@@ -56,10 +56,16 @@ namespace JSON
 			}
 
 			else if (c == '[' || c == ']' || c == '{' || c == '}')
-				m_Tokens.emplace_back(CToken::BRACKET, c);
+			{
+				auto s=std::string(1, c);
+				m_Tokens.emplace_back(CToken::BRACKET, s);
+			}
 
 			else if (c == ',' || c == ':' )
-				m_Tokens.emplace_back(CToken::DELIM, c);
+			{
+				auto s=std::string(1, c);
+				m_Tokens.emplace_back(CToken::DELIM, s);
+			}
 
 			else if (isalpha(c) || c == '_') {
 				tokenStr += c;

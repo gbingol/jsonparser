@@ -69,6 +69,10 @@ namespace JSON
 			return m_Tokens.size();
 		}
 
+		auto cur() const{
+			return m_Tokens[m_TokenPos];
+		}
+
 		auto operator++(int) {
 			return m_Tokens[m_TokenPos++];
 		}
