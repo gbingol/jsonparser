@@ -7,10 +7,18 @@
 JSON::Value FromToken(const JSON::CToken& t)
 {
 	if(t.type() == t.BOOL)
-		return JSON::Bool(t.value() == "true" ? true : false);
+		return JSON::Bool(std::get<bool>(t.value()));
 
 	if(t.type() == t.STR)
-		return JSON::String(t.value());
+		return JSON::String(std::get<std::string>(t.value()));
+	
+	if(t.type() == t.INT)
+		return JSON::Int(std::get<int>(t.value()));
+
+	if(t.type() == t.FLOAT)
+		return JSON::Double(std::get<double>(t.value()));
+
+	return {};
 }
 
 
@@ -18,11 +26,20 @@ JSON::Value ParseObject(JSON::Lexer& lex)
 {
 	std::unordered_map<std::string, std::any> map;
 	auto t = lex++;
-	while(t.value()!="}")
+	while(t.type() != t.BRACKET && std::get<std::string>(t.value())!="}")
 	{
-		auto key = lex++;
-		lex++;
+		auto keyToken = lex++;
+		if(keyToken.type()!=keyToken.STR)
+			throw std::exception("Invalid key in object");
+	
+		auto key = std::get<std::string>(keyToken.value());
+		
+		auto delimToken = lex++;
+		if(delimToken.type() != delimToken.DELIM || std::get<std::string>(delimToken.value())!=":")
+			throw std::exception("Object assignments require : sign");
+
 		auto value = lex++;
+		map[key] = FromToken(value);
 	}
 
 	return JSON::Object(map);
@@ -44,6 +61,6 @@ int main()
 	while(lex.hasmore())
 	{
 		auto t = lex++;
-		std::cout << (int)t.type() << " " << t.value() << std::endl;
+		//std::cout << (int)t.type() << " " << t.value() << std::endl;
 	}
 }

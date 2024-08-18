@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <variant>
 
 
 namespace JSON
@@ -13,13 +14,10 @@ namespace JSON
 	class CToken
 	{
 	public:
-		enum TYPE{ NUM = 0, ID, NONE, BOOL, BRACKET, DELIM, STR };
-
+		enum TYPE{ INT = 0, FLOAT, ID, NONE, BOOL, BRACKET, DELIM, STR };
+		using DTYPE = std::variant<int, double, bool, std::string>;
 	public:
-		CToken(TYPE type, std::string TokenValue) :	m_Type(type),m_Value(TokenValue){}
-		CToken(TYPE type,char c) : CToken(type, std::string(1, c)) {}
-		CToken(const CToken& other) = default;
-		~CToken() = default;
+		CToken(TYPE type, DTYPE TokenValue = {}) :	m_Type(type),m_Value(TokenValue){}
 
 		auto value() const { return m_Value; }
 		TYPE type() const { return m_Type; }
@@ -28,7 +26,7 @@ namespace JSON
 		TYPE m_Type;
 
 		//value of Token for any kind of Token, can be +,-, primary etc...
-		std::string m_Value;
+		DTYPE m_Value;
 	};
 
 

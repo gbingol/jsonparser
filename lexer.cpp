@@ -24,7 +24,6 @@ namespace JSON
 
 			else if (isdigit(c))
 			{
-				size_t Pos = index;
 				char* pEnd;
 				auto SubStr = m_Content.substr(index);
 
@@ -33,7 +32,10 @@ namespace JSON
 
 				index += Length - 1;
 
-				m_Tokens.emplace_back(CToken::NUM, m_Content.substr(Pos, Length));
+				if(int(Num) == Num)
+					m_Tokens.emplace_back(CToken::INT, (int)Num);
+				else
+					m_Tokens.emplace_back(CToken::FLOAT, Num);
 			}
 
 			//decimal equivalent in ASCII is 39
@@ -70,10 +72,10 @@ namespace JSON
 				index--;
 
 				if(tokenStr == "true" || tokenStr == "false")
-					m_Tokens.emplace_back(CToken::BOOL, tokenStr);
+					m_Tokens.emplace_back(CToken::BOOL, tokenStr == "true" ? true : false);
 
 				else if(tokenStr == "null")
-					m_Tokens.emplace_back(CToken::NONE, tokenStr);
+					m_Tokens.emplace_back(CToken::NONE);
 
 				else
 					m_Tokens.emplace_back(CToken::ID, tokenStr);
