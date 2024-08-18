@@ -83,7 +83,7 @@ JSON::Value ParseArray(JSON::Lexer& lex)
 		if(Token.type() == t.BRACKET && std::get<std::string>(Token.value())!="{")
 		{
 			Arr.push_back(ParseObject(lex));
-			lex++
+			lex++;
 		}
 		else
 			Arr.push_back(FromToken(Token));
