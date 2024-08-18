@@ -1,7 +1,24 @@
 #include <iostream>
 
 #include "lexer.h"
-#include "objects.h"
+#include "objects.hpp"
+
+
+JSON::Value ParseObject(JSON::Lexer& lex)
+{
+	std::unordered_map<std::string, JSON::CType> map;
+	auto t = lex++;
+	while(t.value()!="}")
+	{
+		auto key = lex++;
+		lex++;
+		auto value = lex++;
+	}
+
+	return JSON::Object(map);
+}
+
+
 
 int main()
 {
@@ -13,10 +30,10 @@ int main()
 	\"short_desc\":\"Plot Charts\", \
 	}";
 
-	JSON::CJSONLex lex(s);
-	auto tokens = lex.data();
-	for(auto t: tokens)
+	JSON::Lexer lex(s);
+	while(lex.hasmore())
 	{
+		auto t = lex++;
 		std::cout << (int)t.type() << " " << t.value() << std::endl;
 	}
 }

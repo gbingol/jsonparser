@@ -13,7 +13,7 @@ namespace JSON
     template<typename T>
     struct BasicType : CType
     {
-        BasicType(T i):m_Data{i}{}
+        BasicType(T i =T{}):m_Data{i}{}
        
         BasicType(const BasicType& other)
         {
@@ -25,13 +25,13 @@ namespace JSON
             m_Data = other.m_Data;
         }
 
-        T& operator=(const T& rhs)
+        BasicType operator=(const T& rhs)
         {
             m_Data = rhs;
             return *this;
         }
 
-        T& operator=(T&& rhs) noexcept
+        BasicType operator=(T&& rhs) noexcept
         {
             m_Data = rhs;
             return *this;

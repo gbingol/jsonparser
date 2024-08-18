@@ -4,7 +4,7 @@
 
 namespace JSON
 {
-	void CJSONLex::Tokenize()
+	void Lexer::Tokenize()
 	{
 		std::string tokenStr;
 		size_t len = m_Content.length();

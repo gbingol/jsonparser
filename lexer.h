@@ -32,10 +32,10 @@ namespace JSON
 	};
 
 
-	class CJSONLex
+	class Lexer
 	{
 	public:
-		CJSONLex(const std::string& content)
+		Lexer(const std::string& content)
 		{
 			m_Content = content;
 			m_TokenPos = 0;
@@ -43,7 +43,7 @@ namespace JSON
 			Tokenize();
 		}
 
-		virtual ~CJSONLex() = default;
+		virtual ~Lexer() = default;
 
 		std::optional<CToken> next() {
 			if (m_TokenPos < m_Tokens.size()) 
