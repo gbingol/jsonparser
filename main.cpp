@@ -4,9 +4,19 @@
 #include "objects.hpp"
 
 
+JSON::Value FromToken(const JSON::CToken& t)
+{
+	if(t.type() == t.BOOL)
+		return JSON::Bool(t.value() == "true" ? true : false);
+
+	if(t.type() == t.STR)
+		return JSON::String(t.value());
+}
+
+
 JSON::Value ParseObject(JSON::Lexer& lex)
 {
-	std::unordered_map<std::string, JSON::CType> map;
+	std::unordered_map<std::string, std::any> map;
 	auto t = lex++;
 	while(t.value()!="}")
 	{
