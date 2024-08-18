@@ -60,7 +60,7 @@ JSON::Value ParseObject(JSON::Lexer& lex)
 			map[key] = FromToken(valTok);
 	}
 
-	return JSON::Object(map);
+	return map;
 }
 
 
@@ -89,7 +89,7 @@ JSON::Value ParseArray(JSON::Lexer& lex)
 			Arr.push_back(FromToken(Token));
 	}
 
-	return JSON::Array(Arr);
+	return Arr;
 }
 
 
