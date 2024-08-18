@@ -8,20 +8,12 @@
 
 namespace JSON
 {
-    
-    struct CType
-	{
-		virtual bool isString() const { return false; }
-		virtual bool isDouble() const { return false; }
-		virtual bool isBool() const { return false; }
-		virtual bool isArray() const { return false; }
-		virtual bool isObject() const { return false; }
-	};
 
     template<typename T>
-    struct BasicType : CType
+    struct BasicType 
     {
-        BasicType(T i =T{}):m_Data{i}{}
+        BasicType() = default;
+        BasicType(T i):m_Data{i}{}
        
         BasicType(const BasicType& other)
         {
@@ -45,6 +37,8 @@ namespace JSON
             return *this;
         }
 
+        ~BasicType() = default;
+
     protected:
         T m_Data;
     };
@@ -56,7 +50,7 @@ namespace JSON
 	
    
 
-    struct Array : CType
+    struct Array
 	{
 		Array(const std::vector<std::any>& d):m_Data{d}{}
        
@@ -70,24 +64,26 @@ namespace JSON
             m_Data = other.m_Data;
         }
 
-        Array operator=(const std::vector<std::any>& rhs)
+        Array& operator=(const std::vector<std::any>& rhs)
         {
             m_Data = rhs;
             return *this;
         }
 
-        Array operator=(std::vector<std::any>&& rhs) noexcept
+        Array& operator=(std::vector<std::any>&& rhs) noexcept
         {
             m_Data = rhs;
             return *this;
         }
+
+        ~Array() = default;
 
     protected:
         std::vector<std::any> m_Data;
 	};
 
 
-	struct Object : CType
+	struct Object
 	{
 		Object(const  std::unordered_map<std::string, std::any>& d):m_Data{d}{}
        
@@ -101,17 +97,19 @@ namespace JSON
             m_Data = other.m_Data;
         }
 
-        Object operator=(const  std::unordered_map<std::string, std::any>& rhs)
+        Object& operator=(const  std::unordered_map<std::string, std::any>& rhs)
         {
             m_Data = rhs;
             return *this;
         }
 
-        Object operator=( std::unordered_map<std::string, std::any>&& rhs) noexcept
+        Object& operator=( std::unordered_map<std::string, std::any>&& rhs) noexcept
         {
             m_Data = rhs;
             return *this;
         }
+
+        ~Object() = default;
 
         auto data() const{
             return m_Data;
@@ -139,13 +137,12 @@ namespace JSON
 
         Value(const Value& other)
         {
-            if(std::holds_alternative<Int>(other.m_Value))
-                m_Value = std::get<Int>(other.m_Value);
            std::visit(overload{
-            [&](Int& )       { m_Value = std::get<Int>(other.m_Value); },
+            [&](Int )       { m_Value = std::get<Int>(other.m_Value); },
             [&](Double& )   {  m_Value = std::get<Double>(other.m_Value); },
             [&](String& )   { m_Value = std::get<String>(other.m_Value); },
-            [&](Bool& ) { m_Value = std::get<Bool>(other.m_Value); }
+            [&](Bool& ) { m_Value = std::get<Bool>(other.m_Value); },
+            [&](Array& ) { m_Value = std::get<Array>(other.m_Value); }
             }, other.m_Value);
         }
 
