@@ -33,45 +33,17 @@ namespace JSON
             m_Data = other.m_Data;
         }
 
-        BasicType operator=(const T& rhs)
+        BasicType& operator=(const T& rhs)
         {
             m_Data = rhs;
             return *this;
         }
 
-        BasicType operator=(T&& rhs) noexcept
+        BasicType& operator=(T&& rhs) noexcept
         {
             m_Data = rhs;
             return *this;
         }
-
-		constexpr bool isInteger() const
-		{
-			if constexpr (std::is_same<T, int>::value)
-				return true;
-			return false;
-		}
-
-		constexpr bool isDouble() const
-		{
-			if constexpr (std::is_same<T, double>::value)
-				return true;
-			return false;
-		}
-
-		constexpr bool isString() const
-		{
-			if constexpr (std::is_same<T, std::string>::value)
-				return true;
-			return false;
-		}
-
-		constexpr bool isBool() const
-		{
-			if constexpr (std::is_same<T, bool>::value)
-				return true;
-			return false;
-		}
 
     protected:
         T m_Data;
@@ -110,8 +82,6 @@ namespace JSON
             return *this;
         }
 
-		bool isArray() const override { return true; }
-
     protected:
         std::vector<std::any> m_Data;
 	};
@@ -143,8 +113,6 @@ namespace JSON
             return *this;
         }
 
-		bool isObject() const override { return true; }
-
         auto data() const{
             return m_Data;
         }
@@ -154,7 +122,39 @@ namespace JSON
 	};
 
 
-    //std::monostate for JSON's null
-    using Value = std::variant<Int, Double, String, Bool, Array, Object>;
+
+    template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
+    template<class... Ts> overload(Ts...) -> overload<Ts...>;
+
+    class Value
+    {
+    public:
+        Value() = default;
+        Value(int i):m_Value{Int(i)}{}
+        Value(double d):m_Value{Double(d)}{}
+        Value(const std::string& s):m_Value{String(s)}{}
+        Value(bool b):m_Value{Bool(b)}{}
+        Value(const std::vector<std::any>& v):m_Value{Array(v)}{}
+        Value(const std::unordered_map<std::string, std::any>& m):m_Value{Object(m)}{}
+
+        Value(const Value& other)
+        {
+            if(std::holds_alternative<Int>(other.m_Value))
+                m_Value = std::get<Int>(other.m_Value);
+           std::visit(overload{
+            [&](Int& )       { m_Value = std::get<Int>(other.m_Value); },
+            [&](Double& )   {  m_Value = std::get<Double>(other.m_Value); },
+            [&](String& )   { m_Value = std::get<String>(other.m_Value); },
+            [&](Bool& ) { m_Value = std::get<Bool>(other.m_Value); }
+            }, other.m_Value);
+        }
+
+    private:
+        //std::monostate for JSON's null
+        using ValueType = std::variant<Int, Double, String, Bool, Array, Object>;
+        ValueType m_Value;
+    };
+
+    
 
 }

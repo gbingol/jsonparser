@@ -8,16 +8,16 @@
 JSON::Value FromToken(const JSON::CToken& t)
 {
 	if(t.type() == t.BOOL)
-		return JSON::Bool(std::get<bool>(t.value()));
+		return std::get<bool>(t.value());
 
 	if(t.type() == t.STR)
-		return JSON::String(std::get<std::string>(t.value()));
+		return std::get<std::string>(t.value());
 	
 	if(t.type() == t.INT)
-		return JSON::Int(std::get<int>(t.value()));
+		return std::get<int>(t.value());
 
 	if(t.type() == t.FLOAT)
-		return JSON::Double(std::get<double>(t.value()));
+		return std::get<double>(t.value());
 
 	return {};
 }
