@@ -1,0 +1,7 @@
+{"employees":
+[
+	{ "firstName":"John", "lastName":"Doe",  "age":30, "city":"New York" },
+	{ "firstName":"Gokhan", "lastName":"Bingol", "age":48, "city":"Istanbul/Bergen" },
+	{ "firstName":"Peter", "lastName":"Jones",  "age":30, "city":"Ankara" }
+  ]
+}
