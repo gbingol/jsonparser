@@ -21,8 +21,12 @@ namespace JSON
 		return *this;
 	}
 
+    void Array::push_back(const Value &v)
+    {
+		m_Data.push_back(v);
+    }
 
-	std::ostream &operator<<(std::ostream &os, const Array &arr)
+    std::ostream &operator<<(std::ostream &os, const Array &arr)
 	{
 		os << "[";
 		for (size_t i = 0; i < arr.m_Data.size() - 1; ++i)
