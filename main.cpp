@@ -8,7 +8,7 @@
 int main()
 {
 
-	JSON::JSON json(std::filesystem::path("jsonfiles/manifest.json"));
+	JSON::JSON json(std::filesystem::path("jsonfiles/glossary.json"));
 	auto v = json.Parse();
 	std::cout << v;
 
