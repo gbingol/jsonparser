@@ -53,11 +53,11 @@ namespace JSON
 	using String = BasicType<std::string>;
 	using Bool = BasicType<bool>;
 
-
+	class Value;
 
 	struct Array
 	{
-		Array(const std::vector<std::any>& d):m_Data{d}{}
+		Array(const std::vector<std::shared_ptr<Value>>& d):m_Data{d}{}
 		~Array() = default;
 
 		Array(const Array &other) = default;
@@ -70,13 +70,13 @@ namespace JSON
 		Array &operator=(const Array &rhs) = default;
 		Array &operator=(Array &&rhs) noexcept = default;
 
-		Array& operator=(const std::vector<std::any>& rhs)
+		Array& operator=(const std::vector<std::shared_ptr<Value>>& rhs)
 		{
 			m_Data = rhs;
 			return *this;
 		}
 
-		Array& operator=(std::vector<std::any>&& rhs) noexcept
+		Array& operator=(std::vector<std::shared_ptr<Value>>&& rhs) noexcept
 		{
 			m_Data = rhs;
 			return *this;
@@ -87,13 +87,13 @@ namespace JSON
 		}
 
 	private:
-		std::vector<std::any> m_Data;
+		std::vector<std::shared_ptr<Value>> m_Data;
 	};
 
 
 	struct Object
 	{
-		Object(const  std::unordered_map<std::string, std::any>& d):m_Data{d}{}
+		Object(const  std::unordered_map<std::string, std::shared_ptr<Value>>& d):m_Data{d}{}
 		
 		Object(const Object& other)
 		{
@@ -108,13 +108,13 @@ namespace JSON
 		Object &operator=(const Object &rhs) = default;
 		Object &operator=(Object &&rhs) noexcept = default;
 
-		Object& operator=(const  std::unordered_map<std::string, std::any>& rhs)
+		Object& operator=(const  std::unordered_map<std::string, std::shared_ptr<Value>>& rhs)
 		{
 			m_Data = rhs;
 			return *this;
 		}
 
-		Object& operator=( std::unordered_map<std::string, std::any>&& rhs) noexcept
+		Object& operator=( std::unordered_map<std::string, std::shared_ptr<Value>>&& rhs) noexcept
 		{
 			m_Data = rhs;
 			return *this;
@@ -127,13 +127,9 @@ namespace JSON
 		}
 
 	protected:
-		std::unordered_map<std::string, std::any> m_Data;
+		std::unordered_map<std::string, std::shared_ptr<Value>> m_Data;
 	};
 
-
-
-	template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
-	template<class... Ts> overload(Ts...) -> overload<Ts...>;
 
 	class Value
 	{
@@ -143,8 +139,8 @@ namespace JSON
 		Value(double d):m_Value{Double(d)}{}
 		Value(const std::string& s):m_Value{String(s)}{}
 		Value(bool b):m_Value{Bool(b)}{}
-		Value(const std::vector<std::any>& v):m_Value{Array(v)}{}
-		Value(const std::unordered_map<std::string, std::any>& m):m_Value{Object(m)}{}
+		Value(const std::vector<std::shared_ptr<Value>>& v):m_Value{Array(v)}{}
+		Value(const std::unordered_map<std::string, std::shared_ptr<Value>>& m):m_Value{Object(m)}{}
 
 		Value(const Value& other)
 		{

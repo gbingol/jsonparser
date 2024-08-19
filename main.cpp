@@ -8,6 +8,7 @@
 JSON::Value ParseArray(JSON::Lexer& lex);
 JSON::Value ParseObject(JSON::Lexer &lex);
 
+
 JSON::Value FromToken(JSON::Lexer& lex)
 {
 	auto t = lex.cur();
@@ -42,7 +43,7 @@ JSON::Value FromToken(JSON::Lexer& lex)
 
 JSON::Value ParseObject(JSON::Lexer& lex)
 {
-	std::unordered_map<std::string, std::any> map;
+	std::unordered_map<std::string, std::shared_ptr<JSON::Value>> map;
 
 	auto t = lex.cur();
 	assert(t.type() == t.BRACKET && std::get<std::string>(t.value())=="{");
@@ -65,8 +66,9 @@ JSON::Value ParseObject(JSON::Lexer& lex)
 		if(ColTok.type() != ColTok.DELIM || std::get<std::string>(ColTok.value())!=":")
 			throw std::exception("Object assignments require : sign");
 
-		auto valTok = lex++;
-		map[key] = FromToken(lex);
+		auto valTok = lex.cur();
+		map[key] = std::make_shared<JSON::Value>(FromToken(lex));
+		lex++;
 	}
 
 	return map;
@@ -75,21 +77,22 @@ JSON::Value ParseObject(JSON::Lexer& lex)
 
 JSON::Value ParseArray(JSON::Lexer& lex)
 {
-	std::vector<std::any> Arr;
+	std::vector<std::shared_ptr<JSON::Value>> Arr;
 	
 	auto t = lex.cur();
 	assert(t.type() == t.BRACKET && std::get<std::string>(t.value())=="[");
 
 	while(lex.hasmore())
 	{
-		auto Token = lex++;
+		auto Token = lex.cur();
 		if(Token.type() == Token.BRACKET && std::get<std::string>(Token.value())=="]")
 			break;
 
 		if(Token.type() == Token.DELIM && std::get<std::string>(Token.value())==",")
 			continue;
 		
-		Arr.push_back(FromToken(lex));
+		Arr.push_back(std::make_shared<JSON::Value>(FromToken(lex)));
+		lex++;
 	}
 
 	return Arr;
@@ -118,7 +121,11 @@ int main()
 			auto d = v.as_object();
 			for(const auto e:d)
 			{
-				std::cout<<e.first<<std::endl;
+				std::cout << e.first;
+				auto v = *e.second;
+				
+				if(v.is_string())
+					std::cout << v.as_string() << std::endl;
 			}
 		}
 	}
