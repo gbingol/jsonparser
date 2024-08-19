@@ -34,8 +34,14 @@ namespace JSON
 		Lexer lex(m_Content);
 		auto t = lex.cur();
 
-		if(t.type() == t.BRACKET && std::get<std::string>(t.value())=="{")
-			return ParseObject(lex);
+		if(t.type() == t.BRACKET)
+		{
+			if(std::get<std::string>(t.value())=="{")
+				return ParseObject(lex);
+			
+			if(std::get<std::string>(t.value())=="[")
+				return ParseArray(lex);
+		}
 
 		return Value();
 	}
@@ -56,13 +62,12 @@ namespace JSON
 		if(t.type() == t.FLOAT)
 			return std::get<double>(t.value());
 		
-		if(t.type() == t.BRACKET && std::get<std::string>(t.value())!="[")
+		if(t.type() == t.BRACKET && std::get<std::string>(t.value())=="[")
 		{
-			lex++;
 			return ParseArray(lex);
 		}
 
-		if(t.type() == t.BRACKET && std::get<std::string>(t.value())!="[")
+		if(t.type() == t.BRACKET && std::get<std::string>(t.value())=="{")
 		{
 			lex++;
 			return ParseObject(lex);
@@ -75,7 +80,7 @@ namespace JSON
 
 	Value JSON::ParseObject(Lexer& lex)
 	{
-		std::unordered_map<std::string, std::shared_ptr<Value>> map;
+		std::unordered_map<std::string, Value> map;
 
 		auto t = lex.cur();
 		assert(t.type() == t.BRACKET && std::get<std::string>(t.value())=="{");
@@ -99,7 +104,7 @@ namespace JSON
 				throw std::exception("Object assignments require : sign");
 
 			auto valTok = lex.cur();
-			map[key] = std::make_shared<Value>(FromObject(lex));
+			map[key] = FromObject(lex);
 			lex++;
 		}
 
@@ -109,13 +114,14 @@ namespace JSON
 
 	Value JSON::ParseArray(Lexer& lex)
 	{
-		std::vector<std::shared_ptr<Value>> Arr;
+		std::vector<Value> Arr;
 		
 		auto t = lex.cur();
 		assert(t.type() == t.BRACKET && std::get<std::string>(t.value())=="[");
 
 		while(lex.hasmore())
 		{
+			lex++;
 			auto Token = lex.cur();
 			if(Token.type() == Token.BRACKET && std::get<std::string>(Token.value())=="]")
 				break;
@@ -123,8 +129,7 @@ namespace JSON
 			if(Token.type() == Token.DELIM && std::get<std::string>(Token.value())==",")
 				continue;
 			
-			Arr.push_back(std::make_shared<Value>(FromObject(lex)));
-			lex++;
+			Arr.push_back(FromObject(lex));
 		}
 
 		return Arr;

@@ -1,4 +1,5 @@
 [["a=2"],
+"mystring",
 ["import numpy as np"],
 ["np.random.rand(4)"],
 ["np"],

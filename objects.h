@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <variant>
 #include <string>
 #include <vector>
@@ -40,6 +41,12 @@ namespace JSON
 			return *this;
 		}
 
+		std::ostream& operator<<(std::ostream& os)
+		{
+			os << m_Data;
+			return os;
+		}
+
 		auto data() const{
 			return m_Data;
 		}
@@ -57,7 +64,7 @@ namespace JSON
 
 	struct Array
 	{
-		Array(const std::vector<std::shared_ptr<Value>>& d):m_Data{d}{}
+		Array(const std::vector<Value> &d);
 		~Array() = default;
 
 		Array(const Array &other) = default;
@@ -70,31 +77,28 @@ namespace JSON
 		Array &operator=(const Array &rhs) = default;
 		Array &operator=(Array &&rhs) noexcept = default;
 
-		Array& operator=(const std::vector<std::shared_ptr<Value>>& rhs)
-		{
-			m_Data = rhs;
-			return *this;
-		}
+		Array &operator=(const std::vector<Value> &rhs);
 
-		Array& operator=(std::vector<std::shared_ptr<Value>>&& rhs) noexcept
-		{
-			m_Data = rhs;
-			return *this;
-		}
+		Array &operator=(std::vector<Value> &&rhs) noexcept;
 
-		auto data() const{
+		friend std::ostream& operator<<(std::ostream& os, const Array& dt);
+
+		auto& data() const{
 			return m_Data;
 		}
 
 	private:
-		std::vector<std::shared_ptr<Value>> m_Data;
+		std::string print() const;
+
+	private:
+		std::vector<Value> m_Data;
 	};
 
 
 	struct Object
 	{
-		Object(const  std::unordered_map<std::string, std::shared_ptr<Value>>& d):m_Data{d}{}
-		
+		Object(const std::unordered_map<std::string, Value> &d);
+
 		Object(const Object& other)
 		{
 			m_Data = other.m_Data;
@@ -108,17 +112,9 @@ namespace JSON
 		Object &operator=(const Object &rhs) = default;
 		Object &operator=(Object &&rhs) noexcept = default;
 
-		Object& operator=(const  std::unordered_map<std::string, std::shared_ptr<Value>>& rhs)
-		{
-			m_Data = rhs;
-			return *this;
-		}
+		Object &operator=(const std::unordered_map<std::string, Value> &rhs);
 
-		Object& operator=( std::unordered_map<std::string, std::shared_ptr<Value>>&& rhs) noexcept
-		{
-			m_Data = rhs;
-			return *this;
-		}
+		Object &operator=(std::unordered_map<std::string, Value> &&rhs) noexcept;
 
 		~Object() = default;
 
@@ -127,7 +123,7 @@ namespace JSON
 		}
 
 	protected:
-		std::unordered_map<std::string, std::shared_ptr<Value>> m_Data;
+		std::unordered_map<std::string, Value> m_Data;
 	};
 
 
@@ -139,8 +135,8 @@ namespace JSON
 		Value(double d):m_Value{Double(d)}{}
 		Value(const std::string& s):m_Value{String(s)}{}
 		Value(bool b):m_Value{Bool(b)}{}
-		Value(const std::vector<std::shared_ptr<Value>>& v):m_Value{Array(v)}{}
-		Value(const std::unordered_map<std::string, std::shared_ptr<Value>>& m):m_Value{Object(m)}{}
+		Value(const std::vector<Value>& v):m_Value{Array(v)}{}
+		Value(const std::unordered_map<std::string, Value>& m):m_Value{Object(m)}{}
 
 		Value(const Value& other)
 		{
