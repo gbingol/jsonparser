@@ -36,6 +36,7 @@ namespace JSON
 
 		if(t.type() == t.BRACKET)
 		{
+			lex++;
 			if(std::get<std::string>(t.value())=="{")
 				return ParseObject(lex);
 			
@@ -50,6 +51,7 @@ namespace JSON
 	Value JSON::FromObject(Lexer& lex)
 	{
 		auto t = lex.cur();
+		lex++;
 		if(t.type() == t.BOOL)
 			return std::get<bool>(t.value());
 
@@ -63,14 +65,10 @@ namespace JSON
 			return std::get<double>(t.value());
 		
 		if(t.type() == t.BRACKET && std::get<std::string>(t.value())=="[")
-		{
 			return ParseArray(lex);
-		}
 
 		if(t.type() == t.BRACKET && std::get<std::string>(t.value())=="{")
-		{
 			return ParseObject(lex);
-		}
 
 		return {};
 	}
@@ -81,30 +79,33 @@ namespace JSON
 	{
 		std::unordered_map<std::string, Value> map;
 
-		auto t = lex.cur();
-		assert(t.type() == t.BRACKET && std::get<std::string>(t.value())=="{");
-		lex++;
-		while(lex.hasmore())
+		while(true)
 		{
-			auto Token = lex++;
+			auto Token = lex.cur();
 			if(Token.type() == Token.BRACKET && std::get<std::string>(Token.value())=="}")
+			{
+				lex++;
 				break;
+			}
 
 			if(Token.type() == Token.DELIM && std::get<std::string>(Token.value())==",")
+			{
+				lex++;
 				continue;
+			}
 
-			if(Token.type()!=Token.STR)
+			if(Token.type()!= Token.STR)
 				throw std::exception("Invalid key in object");
-		
+
 			auto key = std::get<std::string>(Token.value());
-			
-			auto ColTok = lex++;
-			if(ColTok.type() != ColTok.DELIM || std::get<std::string>(ColTok.value())!=":")
+			lex++;
+			auto Column = lex.cur();
+			if(Column.type() != Column.DELIM || std::get<std::string>(Column.value())!=":")
 				throw std::exception("Object assignments require : sign");
 
+			lex++;
 			auto valTok = lex.cur();
 			map[key] = FromObject(lex);
-			lex++;
 		}
 
 		return map;
@@ -115,18 +116,20 @@ namespace JSON
 	{
 		std::vector<Value> Arr;
 		
-		auto t = lex.cur();
-		assert(t.type() == t.BRACKET && std::get<std::string>(t.value())=="[");
-
-		while(lex.hasmore())
+		while(true)
 		{
-			lex++;
 			auto Token = lex.cur();
 			if(Token.type() == Token.BRACKET && std::get<std::string>(Token.value())=="]")
+			{
+				lex++;
 				break;
+			}
 
 			if(Token.type() == Token.DELIM && std::get<std::string>(Token.value())==",")
+			{
+				lex++;
 				continue;
+			}
 			
 			Arr.push_back(FromObject(lex));
 		}
