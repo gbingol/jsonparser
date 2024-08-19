@@ -1,16 +1,9 @@
 #include <iostream>
-#include <assert.h>
-
 #include "json.h"
-
-
 
 int main()
 {
-
-	JSON::JSON json(std::filesystem::path("jsonfiles/menus.json"));
+	JSON::JSON json(std::filesystem::path("jsonfiles/widgets.json"));
 	auto v = json.Parse();
 	std::cout << v;
-
-	
 }
