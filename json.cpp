@@ -69,7 +69,6 @@ namespace JSON
 
 		if(t.type() == t.BRACKET && std::get<std::string>(t.value())=="{")
 		{
-			lex++;
 			return ParseObject(lex);
 		}
 

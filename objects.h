@@ -41,12 +41,6 @@ namespace JSON
 			return *this;
 		}
 
-		std::ostream& operator<<(std::ostream& os)
-		{
-			os << m_Data;
-			return os;
-		}
-
 		auto data() const{
 			return m_Data;
 		}
@@ -81,14 +75,11 @@ namespace JSON
 
 		Array &operator=(std::vector<Value> &&rhs) noexcept;
 
-		friend std::ostream& operator<<(std::ostream& os, const Array& dt);
+		friend std::ostream& operator<<(std::ostream& os, const Array& arr);
 
 		auto& data() const{
 			return m_Data;
 		}
-
-	private:
-		std::string print() const;
 
 	private:
 		std::vector<Value> m_Data;
@@ -113,8 +104,9 @@ namespace JSON
 		Object &operator=(Object &&rhs) noexcept = default;
 
 		Object &operator=(const std::unordered_map<std::string, Value> &rhs);
-
 		Object &operator=(std::unordered_map<std::string, Value> &&rhs) noexcept;
+
+		friend std::ostream& operator<<(std::ostream& os, const Object& obj);
 
 		~Object() = default;
 
@@ -158,6 +150,8 @@ namespace JSON
 				}, other.m_Value);
 		}
 
+		friend std::ostream& operator<<(std::ostream& os, const Value& v);
+
 
 		bool is_string() const { return std::holds_alternative<String>(m_Value); }
 		bool is_double() const {  return std::holds_alternative<Double>(m_Value); }
@@ -178,6 +172,19 @@ namespace JSON
 		auto as_bool() const { return as<Bool>(); };
 		auto as_array() const { return as<Array>(); };
 		auto as_object() const { return as<Object>(); };
+
+		template<typename T>
+		auto As() const 
+		{ 
+			return std::get<T>(m_Value); 
+		}
+
+		auto as_String() const {return As<String>();};
+		auto as_Double() const { return As<Double>(); };
+		auto as_Int() const { return As<Int>(); };
+		auto as_Bool() const { return As<Bool>(); };
+		auto as_Array() const { return As<Array>(); };
+		auto as_Object() const { return As<Object>(); };
 
 	private:
 		//std::monostate for JSON's null
