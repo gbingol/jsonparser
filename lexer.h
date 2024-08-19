@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <string>
 #include <vector>
 #include <optional>
@@ -9,8 +8,6 @@
 
 namespace JSON
 {
-	/* ***********   CGenericLex  *********************/
-
 	class CToken
 	{
 	public:
