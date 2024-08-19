@@ -58,24 +58,22 @@ namespace JSON
 
 	struct Array
 	{
+		Array() = default;
 		Array(const std::vector<Value> &d);
 		~Array() = default;
 
 		Array(const Array &other) = default;
-
-		Array(Array&& other) noexcept
-		{
-			m_Data = other.m_Data;
-		}
+		Array(Array&& other) noexcept = default;
 
 		Array &operator=(const Array &rhs) = default;
 		Array &operator=(Array &&rhs) noexcept = default;
 
 		Array &operator=(const std::vector<Value> &rhs);
-
 		Array &operator=(std::vector<Value> &&rhs) noexcept;
 
 		friend std::ostream& operator<<(std::ostream& os, const Array& arr);
+
+		void push_back(const Value& v);
 
 		auto& data() const{
 			return m_Data;
@@ -126,9 +124,18 @@ namespace JSON
 		Value(int i):m_Value{Int(i)}{}
 		Value(double d):m_Value{Double(d)}{}
 		Value(const std::string& s):m_Value{String(s)}{}
+		Value(const char* s): m_Value{String(s)}{}
 		Value(bool b):m_Value{Bool(b)}{}
 		Value(const std::vector<Value>& v):m_Value{Array(v)}{}
 		Value(const std::unordered_map<std::string, Value>& m):m_Value{Object(m)}{}
+
+		Value(Int i):m_Value{i}{}
+		Value(Double d):m_Value{d}{}
+		Value(String s):m_Value{s}{}
+		Value(Bool b):m_Value{b}{}
+		Value(Array arr):m_Value{arr}{}
+		Value(Object o):m_Value{o}{}
+		
 
 		Value(const Value& other)
 		{
@@ -152,7 +159,7 @@ namespace JSON
 
 		friend std::ostream& operator<<(std::ostream& os, const Value& v);
 
-
+		bool is_null() const { return std::holds_alternative<std::monostate>(m_Value); }
 		bool is_string() const { return std::holds_alternative<String>(m_Value); }
 		bool is_double() const {  return std::holds_alternative<Double>(m_Value); }
 		bool is_int() const {  return std::holds_alternative<Int>(m_Value); }
@@ -188,7 +195,7 @@ namespace JSON
 
 	private:
 		//std::monostate for JSON's null
-		using ValueType = std::variant<Int, Double, String, Bool, Array, Object>;
+		using ValueType = std::variant<std::monostate, Int, Double, String, Bool, Array, Object>;
 		ValueType m_Value;
 	};
 
