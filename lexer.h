@@ -35,7 +35,7 @@ namespace JSON
 	public:
 		Lexer(const std::string& content)
 		{
-			m_Content = content;
+			m_Text = content;
 			m_TokenPos = 0;
 
 			Tokenize();
@@ -105,6 +105,6 @@ namespace JSON
 
 		std::vector<CToken> m_Tokens;
 
-		std::string m_Content;
+		std::string m_Text;
 	};
 }

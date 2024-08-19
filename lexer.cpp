@@ -7,14 +7,14 @@ namespace JSON
 	void Lexer::Tokenize()
 	{
 		std::string tokenStr;
-		size_t len = m_Content.length();
+		size_t len = m_Text.length();
 
-		if (m_Content.empty()) 
+		if (m_Text.empty()) 
 			throw std::exception("Empty string cannot be tokenized.");
 
 		for (size_t index = 0; index < len; ++index)
 		{
-			char c = m_Content[index];
+			char c = m_Text[index];
 
 			if (c == 0 || c == '\0')
 				break;
@@ -25,7 +25,7 @@ namespace JSON
 			else if (isdigit(c))
 			{
 				char* pEnd;
-				auto SubStr = m_Content.substr(index);
+				auto SubStr = m_Text.substr(index);
 
 				auto Num = std::strtod(SubStr.c_str(), &pEnd);
 				auto Length = std::distance(const_cast<char*>(SubStr.c_str()), pEnd);
@@ -41,39 +41,31 @@ namespace JSON
 			//decimal equivalent in ASCII is 39
 			else if (c == '\"' || c == '\'')
 			{
-				char Chars = c == '\"' ? '\"' : '\'';
+				char Search = c == '\"' ? '\"' : '\'';
 
-				tokenStr += c;
-				while ((c = m_Content[++index]) != Chars && 
-						index < m_Content.length())
+				while (	(c = m_Text[++index]) != Search && index < len)
 					tokenStr = tokenStr + c;
 
-				if (index == m_Content.length())
+				if (index == m_Text.length())
 					throw std::exception("Parse error while searching for \" or \'");
 
-				tokenStr += c;
 				m_Tokens.emplace_back(CToken::STR, tokenStr);
 			}
 
 			else if (c == '[' || c == ']' || c == '{' || c == '}')
-			{
-				auto s=std::string(1, c);
-				m_Tokens.emplace_back(CToken::BRACKET, s);
-			}
+				m_Tokens.emplace_back(CToken::BRACKET, std::string(1, c));
 
 			else if (c == ',' || c == ':' )
-			{
-				auto s=std::string(1, c);
-				m_Tokens.emplace_back(CToken::DELIM, s);
-			}
+				m_Tokens.emplace_back(CToken::DELIM, std::string(1, c));
 
-			else if (isalpha(c) || c == '_') {
+			else if (isalpha(c) || c == '_') 
+			{
 				tokenStr += c;
 
-				c = m_Content[++index];
+				c = m_Text[++index];
 				while (std::isalnum(c) || c == '_') {
 					tokenStr += c;
-					c = m_Content[++index];
+					c = m_Text[++index];
 				}
 				index--;
 
