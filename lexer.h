@@ -90,7 +90,7 @@ namespace JSON
 		}
 
 		bool hasmore() const {
-			return m_TokenPos < m_Tokens.size();
+			return m_TokenPos < (m_Tokens.size() - 1);
 		}
 
 		const auto& data() const {
