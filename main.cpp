@@ -5,8 +5,12 @@
 #include "objects.hpp"
 
 
-JSON::Value FromToken(const JSON::CToken& t)
+JSON::Value ParseArray(JSON::Lexer& lex);
+JSON::Value ParseObject(JSON::Lexer &lex);
+
+JSON::Value FromToken(JSON::Lexer& lex)
 {
+	auto t = lex.cur();
 	if(t.type() == t.BOOL)
 		return std::get<bool>(t.value());
 
@@ -18,12 +22,23 @@ JSON::Value FromToken(const JSON::CToken& t)
 
 	if(t.type() == t.FLOAT)
 		return std::get<double>(t.value());
+	
+	if(t.type() == t.BRACKET && std::get<std::string>(t.value())!="[")
+	{
+		lex++;
+		return ParseArray(lex);
+	}
+
+	if(t.type() == t.BRACKET && std::get<std::string>(t.value())!="[")
+	{
+		lex++;
+		return ParseObject(lex);
+	}
 
 	return {};
 }
 
 
-JSON::Value ParseArray(JSON::Lexer& lex);
 
 JSON::Value ParseObject(JSON::Lexer& lex)
 {
@@ -51,13 +66,7 @@ JSON::Value ParseObject(JSON::Lexer& lex)
 			throw std::exception("Object assignments require : sign");
 
 		auto valTok = lex++;
-		if(valTok.type() == t.BRACKET && std::get<std::string>(valTok.value())!="[")
-		{
-			map[key] = ParseArray(lex);
-			lex++;
-		}
-		else
-			map[key] = FromToken(valTok);
+		map[key] = FromToken(lex);
 	}
 
 	return map;
@@ -80,13 +89,7 @@ JSON::Value ParseArray(JSON::Lexer& lex)
 		if(Token.type() == Token.DELIM && std::get<std::string>(Token.value())==",")
 			continue;
 		
-		if(Token.type() == t.BRACKET && std::get<std::string>(Token.value())!="{")
-		{
-			Arr.push_back(ParseObject(lex));
-			lex++;
-		}
-		else
-			Arr.push_back(FromToken(Token));
+		Arr.push_back(FromToken(lex));
 	}
 
 	return Arr;
@@ -109,12 +112,14 @@ int main()
 
 	if(t.type() == t.BRACKET && std::get<std::string>(t.value())=="{")
 	{
-		auto v = std::get<JSON::Object>(ParseObject(lex));
-		auto d = v.data();
-
-		for(const auto e:d)
+		auto v = ParseObject(lex);
+		if(v.is_object())
 		{
-			std::cout<<e.first<<std::endl;
+			auto d = v.as_object();
+			for(const auto e:d)
+			{
+				std::cout<<e.first<<std::endl;
+			}
 		}
 	}
 }

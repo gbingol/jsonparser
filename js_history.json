@@ -1,0 +1,6 @@
+[["a=2"],
+["import numpy as np"],
+["np.random.rand(4)"],
+["np"],
+["np.random.rand(2,3)"],
+["np.random.beta(2,3)"]]
