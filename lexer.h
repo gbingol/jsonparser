@@ -30,37 +30,13 @@ namespace JSON
 	class Lexer
 	{
 	public:
-		Lexer(const std::string& content)
+		Lexer(std::string_view JSONText)
 		{
-			m_Text = content;
 			m_TokenPos = 0;
-
-			Tokenize();
+			Tokenize(JSONText);
 		}
 
 		virtual ~Lexer() = default;
-
-		std::optional<CToken> next() {
-			if (m_TokenPos < m_Tokens.size()) 
-				return m_Tokens[m_TokenPos++];
-			return {};
-		}
-
-		std::optional<CToken> prev() {
-			if (m_TokenPos > 0) 
-				return m_Tokens[m_TokenPos--];
-			return {};
-		}
-
-		std::optional<CToken> at(size_t pos) const {
-			if (pos < m_Tokens.size())
-				return m_Tokens[pos];
-			return {};
-		}
-
-		void insert(size_t pos, CToken token) {
-			m_Tokens.insert(m_Tokens.begin() + pos, token);
-		}
 
 		size_t size() const {
 			return m_Tokens.size();
@@ -70,12 +46,22 @@ namespace JSON
 			return m_Tokens[m_TokenPos];
 		}
 
+		//post-increment
 		auto operator++(int) {
 			return m_Tokens[m_TokenPos++];
 		}
 
+		//post-decrement
 		auto operator--(int) {
 			return m_Tokens[m_TokenPos--];
+		}
+
+		//move lexical position forward or backwards with given step size
+		void move(int step=1)
+		{
+			m_TokenPos += step;
+			if(m_TokenPos<0 || m_TokenPos>size())
+				throw "Invalid step size.";
 		}
 
 		auto begin() {
@@ -86,22 +72,15 @@ namespace JSON
 			return m_Tokens.end();
 		}
 
-		bool hasmore() const {
-			return m_TokenPos < (m_Tokens.size() - 1);
-		}
-
-		const auto& data() const {
-			return m_Tokens;
-		}
 
 	private:
-		void Tokenize();
+		void Tokenize(std::string_view JSONText);
 
 	private:
-		size_t m_TokenPos; //tracking token's position in the vector
+		//tracking token's position in the vector
+		size_t m_TokenPos;
 
+		//list of tokens
 		std::vector<CToken> m_Tokens;
-
-		std::string m_Text;
 	};
 }
