@@ -36,7 +36,7 @@ namespace JSON
 
 		if(t.type() == t.BRACKET)
 		{
-			lex++;
+			lex.move(1);
 			if(std::get<std::string>(t.value())=="{")
 				return ParseObject(lex);
 			
@@ -51,7 +51,7 @@ namespace JSON
 	Value JSON::FromObject(Lexer& lex)
 	{
 		auto t = lex.cur();
-		lex++;
+		lex.move(1);
 		if(t.type() == t.BOOL)
 			return std::get<bool>(t.value());
 
@@ -84,13 +84,13 @@ namespace JSON
 			auto Token = lex.cur();
 			if(Token.type() == Token.BRACKET && std::get<std::string>(Token.value())=="}")
 			{
-				lex++;
+				lex.move(1);
 				break;
 			}
 
 			if(Token.type() == Token.DELIM && std::get<std::string>(Token.value())==",")
 			{
-				lex++;
+				lex.move(1);
 				continue;
 			}
 
@@ -98,12 +98,12 @@ namespace JSON
 				throw std::exception("Invalid key in object");
 
 			auto key = std::get<std::string>(Token.value());
-			lex++;
+			lex.move(1);
 			auto Column = lex.cur();
 			if(Column.type() != Column.DELIM || std::get<std::string>(Column.value())!=":")
 				throw std::exception("Object assignments require : sign");
 
-			lex++;
+			lex.move(1);
 			auto valTok = lex.cur();
 			map[key] = FromObject(lex);
 		}
@@ -121,13 +121,13 @@ namespace JSON
 			auto Token = lex.cur();
 			if(Token.type() == Token.BRACKET && std::get<std::string>(Token.value())=="]")
 			{
-				lex++;
+				lex.move(1);
 				break;
 			}
 
 			if(Token.type() == Token.DELIM && std::get<std::string>(Token.value())==",")
 			{
-				lex++;
+				lex.move(1);
 				continue;
 			}
 			
