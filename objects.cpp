@@ -95,6 +95,8 @@ namespace JSON
 			os << v.as_double();
 		else if(v.is_string())
 			os << "\"" << v.as_string() << "\"";
+		else if(v.is_null())
+			os << "null";
 
 		return os;
 	}
