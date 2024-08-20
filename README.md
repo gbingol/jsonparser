@@ -1,9 +1,7 @@
 ## JSON Parser
 
-This is a portable C++ library which provides containers and algorithms that implement JSON data-interchange format. It focuses on a common and popular use-case: parsing and serializing to and from a container.
-
-
-Its design is inspired by Boost::JSON and among others successfully passed all the tests with the files in the jsonfiles folder.
+This is a portable C++ library which parses JSON text/file and serializes C++ data to JSON text. 
+Its design is inspired by [Boost::JSON](https://www.boost.org/doc/libs/1_86_0/libs/json/doc/html/index.html) and it has been tested with the JSON files in the `testfiles` folder.
 
 
 ## Requirements
@@ -39,9 +37,9 @@ Designed for simplicity.
 int main()
 {
     //constructor can be either a std::filesystem::path or UTF8 std::string
-	JSON::JSON json(std::filesystem::path("jsonfiles/widgets.json"));
+	JSON::JSON json(std::filesystem::path("testfiles/widgets.json"));
 
-    //a JSON value
+    //v is a JSON value
 	auto v = json.Parse(); 
 
     //write to output stream
