@@ -69,4 +69,4 @@ auto as_array() const; //std::vector<Value>
 auto as_object() const; //std::unordered_map<std::string, Value>
 
 ```
-It should be noted that none of the above-listed `as_` methods checks they type. Use `is_` checks before attempting to extract corresponding C++ values.
+It should be noted that none of the above-listed `as_` methods checks the type, therefore possibly can cause a crash if the value does not match. Therefore, use `is_` checks before attempting to extract corresponding C++ values.
