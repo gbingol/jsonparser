@@ -1,23 +1,21 @@
 ## JSON Parser
 
-This is a portable, easy to integrate (a single header and a cpp file) library which parses JSON text/file and serializes C++ data to JSON text. Its design has been inspired by [Boost::JSON](https://www.boost.org/doc/libs/1_86_0/libs/json/doc/html/index.html) and it has been tested with the JSON files in the `testfiles` folder.
+This is a portable, easy to integrate (a single header and a cpp file) library which parses JSON text/file and serializes C++ data to JSON text. Its design was inspired by [Boost::JSON](https://www.boost.org/doc/libs/1_86_0/libs/json/doc/html/index.html) and has been tested with the JSON files in the `testfiles` folder.
+
+It contains only 7 interface objects: 
+1. Value (Any JSON value, basically any of the following),
+2. Int (integers),
+3. Double (floats),
+4. String (strings), 
+5. Bool (true or false), 
+6. Array (Value array), 
+7. Object (key, value pairs)
+
 
 
 ## Requirements
 
  Requires C++17 or higher.
-
- &nbsp;
-
-## Interface Objects
-
-1. Value (Any JSON value, basically any of the following),
-2. Int (int),
-3. Double (double),
-4. String (const char* or std::string), 
-5. Bool (bool), 
-6. Array (std::vector<Value>), 
-7. Object (std::unordered_map<std::string, Value>)
 
 
 &nbsp;
@@ -71,4 +69,4 @@ auto as_array() const; //std::vector<Value>
 auto as_object() const; //std::unordered_map<std::string, Value>
 
 ```
-It should be noted that any of the above-listed `as_` methods does not perform a further type check.
+It should be noted that none of the above-listed `as_` methods checks they type. Use `is_` checks before attempting to extract corresponding C++ values.
