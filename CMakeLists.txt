@@ -9,6 +9,3 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 add_executable(${PROJECT_NAME} main.cpp json.cpp)
-
-#using codecvt library which isssues deprecation warning
-target_compile_definitions(${PROJECT_NAME} PRIVATE _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)

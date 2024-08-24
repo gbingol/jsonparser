@@ -1,8 +1,6 @@
 #include "json.h"
 
 #include <assert.h>
-#include <locale>
-#include <codecvt>
 #include <fstream>
 #include <sstream>
 
@@ -16,36 +14,28 @@ namespace JSON
 		if(!(value.is_array() || value.is_object()))
 			return false;
 
-		std::wofstream file(path, std::ios::out);
-		file.imbue(std::locale(file.getloc(), new std::codecvt_utf8<wchar_t>));
+		std::ofstream file(path, std::ios::out);
 		if (!file.is_open())
 			return false;
 
-		std::stringstream ss;
-		ss << value;
-
-		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-		file << converter.from_bytes(ss.str());
+		file << value;
 		file.close();
 
 		return true;
 	}
 
-
+	
 	JSON::JSON(std::filesystem::path path)
 	{
 		if (!std::filesystem::exists(path))
 			throw std::exception("File does not exist");
 
-		std::wifstream file(path, std::ios::in);
+		std::ifstream file(path, std::ios::in);
 		if (!file.is_open())  
 			throw std::exception("Failed to open file");
-
-		file.imbue(std::locale(file.getloc(), new std::codecvt_utf8<wchar_t>));
 	
-		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-		for (std::wstring Line; std::getline(file, Line);)
-			m_Content.append(converter.to_bytes(Line));
+		for (std::string Line; std::getline(file, Line);)
+			m_Content.append(Line);
 
 		file.close();
 	}
