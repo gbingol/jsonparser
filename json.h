@@ -25,8 +25,17 @@ namespace
 }
 
 
+
+
 namespace JSON
 {
+	struct Error
+	{
+		bool failed{false};
+		std::string msg;
+	};
+
+
 	class Lexer;
 	class Value;
 
@@ -37,7 +46,7 @@ namespace JSON
 		JSON(std::filesystem::path path);
 
 		//1st: id (converted to uppercase), 2nd: value
-		Value Parse();
+		Value Parse(Error& err);
 
 		static bool Write(
 				const Value &value, 

@@ -4,6 +4,9 @@
 int main()
 {
 	JSON::JSON json(std::filesystem::path("testfiles/widgets.json"));
-	auto v = json.Parse();
-	std::cout << v;
+	JSON::Error err;
+	auto v = json.Parse(err);
+
+	if(!err.failed)
+		std::cout << v;
 }

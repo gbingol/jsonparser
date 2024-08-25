@@ -41,19 +41,25 @@ namespace JSON
 	}
 
 
-	Value JSON::Parse()
+	Value JSON::Parse(Error& err)
 	{
-		Lexer lex(m_Content);
-		auto t = lex.cur();
+		try {
+			Lexer lex(m_Content);
+			auto t = lex.cur();
 
-		if(t.type() == t.BRACKET)
-		{
-			lex.move(1);
-			if(std::get<std::string>(t.value())=="{")
-				return ParseObject(lex);
-			
-			if(std::get<std::string>(t.value())=="[")
-				return ParseArray(lex);
+			if(t.type() == t.BRACKET) 
+			{
+				lex.move(1);
+				if(std::get<std::string>(t.value())=="{")
+					return ParseObject(lex);
+				
+				if(std::get<std::string>(t.value())=="[")
+					return ParseArray(lex);
+			}
+		}
+		catch(std::exception& e) {
+			err.failed = true;
+			err.msg = e.what();
 		}
 
 		return Value();
