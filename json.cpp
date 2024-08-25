@@ -307,11 +307,28 @@ namespace JSON
 			{
 				char Search = c == '\"' ? '\"' : '\'';
 
-				while (	(c = _Text[++index]) != Search && index < len)
-					tokenStr = tokenStr + c;
+				bool Escape = false;
+				while (true)
+				{
+					c = _Text[++index];
+					if(c == '\\')
+					{
+						Escape = true;
+						continue;
+					}
 
-				if (index == _Text.length())
-					throw std::exception("Parse error while searching for \" or \'");
+					if(c == Search && !Escape)
+						break;
+					
+					if(Escape) {
+						tokenStr += '\\';
+						Escape = false;
+					}
+					tokenStr += c;
+
+					if (index == _Text.length())
+						throw std::exception("Parse error while searching for \" or \'");
+				}
 
 				m_Tokens.emplace_back(CToken::STR, tokenStr);
 			}
