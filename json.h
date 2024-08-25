@@ -7,6 +7,23 @@
 #include <unordered_map>
 
 
+namespace 
+{
+	std::string& EscapeQuotes(std::string& s)
+	{
+		// Replace all occurrences of '"' with "\\\""
+		std::string target = "\"", replcmnt = "\\\""; 
+
+		size_t pos = 0;
+		while ((pos = s.find(target, pos)) != std::string::npos) 
+		{
+			s.replace(pos, target.length(), replcmnt);
+			pos += replcmnt.length(); 
+		}
+		return s;
+	}
+}
+
 
 namespace JSON
 {
@@ -152,8 +169,18 @@ namespace JSON
 		Value() = default;
 		Value(int i):m_Value{Int(i)}{}
 		Value(double d):m_Value{Double(d)}{}
-		Value(const std::string& s):m_Value{String(s)}{}
-		Value(const char* s): m_Value{String(s)}{}
+		Value(const std::string& s)
+		{
+			auto s2 = s;
+			s2.erase(std::remove_if(s2.begin(), s2.end(),[](char c) { return c == '\\'; }), s2.end());
+			m_Value = String(s2);
+		}
+		Value(const char* s)
+		{
+			std::string s2 = s;
+			s2.erase(std::remove_if(s2.begin(), s2.end(),[](char c) { return c == '\\'; }), s2.end());
+			m_Value = String(s2);
+		}
 		Value(bool b):m_Value{Bool(b)}{}
 		Value(const std::vector<Value>& v):m_Value{Array(v)}{}
 		Value(const std::unordered_map<std::string, Value>& m):m_Value{Object(m)}{}
@@ -202,12 +229,12 @@ namespace JSON
 			return std::get<T>(m_Value).data(); 
 		}
 
-		auto as_string() const {return as<String>();};
-		auto as_double() const { return as<Double>(); };
-		auto as_int() const { return as<Int>(); };
-		auto as_bool() const { return as<Bool>(); };
-		auto as_array() const { return as<Array>(); };
-		auto as_object() const { return as<Object>(); };
+		auto as_string() const { return as<String>(); }
+		auto as_double() const { return as<Double>(); }
+		auto as_int() const { return as<Int>(); }
+		auto as_bool() const { return as<Bool>(); }
+		auto as_array() const { return as<Array>(); }
+		auto as_object() const { return as<Object>(); }
 
 		template<typename T>
 		auto As() const 
@@ -215,12 +242,12 @@ namespace JSON
 			return std::get<T>(m_Value); 
 		}
 
-		auto as_String() const {return As<String>();};
-		auto as_Double() const { return As<Double>(); };
-		auto as_Int() const { return As<Int>(); };
-		auto as_Bool() const { return As<Bool>(); };
-		auto as_Array() const { return As<Array>(); };
-		auto as_Object() const { return As<Object>(); };
+		auto as_String() const {return As<String>();}
+		auto as_Double() const { return As<Double>(); }
+		auto as_Int() const { return As<Int>(); }
+		auto as_Bool() const { return As<Bool>(); }
+		auto as_Array() const { return As<Array>(); }
+		auto as_Object() const { return As<Object>(); }
 
 	private:
 		//std::monostate for JSON's null

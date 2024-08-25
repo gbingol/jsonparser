@@ -257,7 +257,11 @@ namespace JSON
 		else if(v.is_double())
 			os << v.as_double();
 		else if(v.is_string())
-			os << "\"" << v.as_string() << "\"";
+		{
+			auto s = v.as_string();
+			s = EscapeQuotes(s);
+			os << "\"" << s << "\"";
+		}
 		else if(v.is_null())
 			os << "null";
 
